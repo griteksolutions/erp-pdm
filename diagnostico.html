@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnóstico ERP+PDM · Juan Grijalva</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:  #0D1B2E;
+    --blue:  #1A2E4A;
+    --mid:   #2563EB;
+    --gold:  #F59E0B;
+    --gold2: #FBBF24;
+    --slate: #94A3B8;
+    --light: #F1F5F9;
+    --lgray: #F8FAFC;
+    --bdr:   #CBD5E1;
+    --white: #FFFFFF;
+    --black: #0F172A;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #F1F5F9;
+    color: var(--black);
+    min-height: 100vh;
+  }
+
+  /* ── TOP STRIP ── */
+  .top-strip {
+    background: var(--navy);
+    padding: 0 24px;
+    height: 52px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 2px solid var(--gold);
+  }
+  .top-strip a {
+    font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700;
+    color: var(--white); text-decoration: none;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .top-strip a span { color: var(--gold); }
+  .top-strip-right { font-size: 12px; color: var(--slate); }
+
+  /* ── HERO HEADER ── */
+  .form-header {
+    background: linear-gradient(135deg, var(--navy) 0%, #1A2E4A 100%);
+    padding: 36px 24px 32px;
+    text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .form-header::after {
+    content: '';
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--gold), var(--gold2), transparent);
+  }
+  .client-badge {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: rgba(245,158,11,.15);
+    border: 1px solid rgba(245,158,11,.35);
+    border-radius: 20px; padding: 5px 14px;
+    font-size: 12px; font-weight: 600; color: var(--gold);
+    letter-spacing: .3px; margin-bottom: 16px;
+  }
+  .client-badge::before {
+    content: ''; width: 6px; height: 6px;
+    background: var(--gold); border-radius: 50%;
+    animation: blink 2s infinite;
+  }
+  @keyframes blink {
+    0%,100%{opacity:1} 50%{opacity:.3}
+  }
+  .form-header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(22px, 4vw, 30px);
+    font-weight: 800; color: var(--white);
+    margin-bottom: 8px; letter-spacing: -.3px;
+  }
+  .form-header p { font-size: 14px; color: var(--slate); }
+
+  /* ── PROGRESS ── */
+  .progress-wrap {
+    background: var(--blue);
+    padding: 10px 24px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .progress-track {
+    flex: 1; height: 4px; background: rgba(255,255,255,.12);
+    border-radius: 4px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: linear-gradient(90deg, var(--mid), var(--gold));
+    border-radius: 4px; width: 0%;
+    transition: width .4s ease;
+  }
+  .progress-pct { font-size: 12px; font-weight: 700; color: var(--gold); min-width: 34px; }
+
+  /* ── WRAPPER ── */
+  .wrapper {
+    max-width: 740px; margin: 0 auto;
+    padding: 28px 20px 80px;
+  }
+
+  /* ── DATOS GRID ── */
+  .datos-block {
+    background: white;
+    border-radius: 10px;
+    border: 1px solid var(--bdr);
+    overflow: hidden;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.06);
+  }
+  .block-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 13px 18px;
+    background: var(--lgray);
+    border-bottom: 1px solid var(--bdr);
+  }
+  .block-num {
+    background: var(--mid); color: white;
+    font-size: 11px; font-weight: 700;
+    padding: 3px 9px; border-radius: 20px;
+    font-family: 'Syne', sans-serif;
+  }
+  .block-header h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 13.5px; font-weight: 700; color: var(--blue);
+  }
+  .block-body { padding: 18px 18px 14px; }
+  .datos-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+  }
+  @media(max-width:500px){ .datos-grid { grid-template-columns: 1fr; } }
+
+  /* ── FIELD ── */
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label {
+    font-size: 12px; font-weight: 600; color: #475569;
+    text-transform: uppercase; letter-spacing: .4px;
+  }
+  .field .hint {
+    font-size: 11.5px; font-weight: 400; color: var(--slate);
+    text-transform: none; letter-spacing: 0; margin-top: 1px; display: block;
+  }
+  .field input, .field textarea, .field select {
+    padding: 9px 12px;
+    border: 1.5px solid var(--bdr);
+    border-radius: 7px;
+    font-size: 14px; color: var(--black);
+    background: var(--lgray);
+    font-family: 'DM Sans', sans-serif;
+    transition: border-color .18s, box-shadow .18s, background .18s;
+    resize: vertical;
+  }
+  .field input:focus, .field textarea:focus, .field select:focus {
+    outline: none;
+    border-color: var(--mid);
+    box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+    background: white;
+  }
+  .field textarea { min-height: 76px; }
+
+  /* ── SECCION BLOCK ── */
+  .seccion {
+    background: white;
+    border-radius: 10px;
+    border: 1px solid var(--bdr);
+    overflow: hidden;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.06);
+  }
+  .sec-preguntas { padding: 16px 18px 10px; }
+  .pregunta { margin-bottom: 15px; }
+  .pregunta:last-child { margin-bottom: 4px; }
+
+  /* ── NOTAS ── */
+  .notas-wrap {
+    background: white; border-radius: 10px;
+    border: 1px solid var(--bdr);
+    padding: 18px; margin-bottom: 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.06);
+  }
+  .notas-wrap label {
+    display: block; font-size: 13px; font-weight: 600;
+    color: var(--blue); margin-bottom: 8px;
+  }
+  .notas-wrap textarea {
+    width: 100%; padding: 10px 13px;
+    border: 1.5px solid var(--bdr); border-radius: 7px;
+    font-size: 14px; font-family: 'DM Sans', sans-serif;
+    min-height: 90px; background: var(--lgray); resize: vertical;
+  }
+  .notas-wrap textarea:focus {
+    outline: none; border-color: var(--mid);
+    box-shadow: 0 0 0 3px rgba(37,99,235,.1); background: white;
+  }
+
+  /* ── SUBMIT ── */
+  .btn-submit {
+    width: 100%; padding: 16px;
+    background: var(--navy); color: white;
+    border: none; border-radius: 9px;
+    font-size: 15px; font-weight: 700;
+    font-family: 'Syne', sans-serif;
+    letter-spacing: .3px; cursor: pointer;
+    transition: background .2s, transform .1s, box-shadow .2s;
+    box-shadow: 0 4px 18px rgba(13,27,46,.3);
+  }
+  .btn-submit:hover { background: var(--mid); box-shadow: 0 6px 24px rgba(37,99,235,.35); }
+  .btn-submit:active { transform: scale(.99); }
+  .btn-submit:disabled { background: #94A3B8; cursor: not-allowed; box-shadow: none; }
+  .privacy { font-size: 11.5px; color: var(--slate); text-align: center; margin-top: 12px; }
+
+  /* ── ESTADOS ── */
+  #estadoCard {
+    display: none;
+    background: white; border-radius: 12px;
+    border: 1px solid var(--bdr);
+    padding: 60px 32px; text-align: center;
+    box-shadow: 0 2px 12px rgba(0,0,0,.08);
+  }
+  #estadoCard.visible { display: block; }
+  .estado-icon { font-size: 60px; margin-bottom: 18px; }
+  #estadoCard h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px; font-weight: 800;
+    color: var(--navy); margin-bottom: 10px;
+  }
+  #estadoCard p { font-size: 14px; color: var(--slate); line-height: 1.6; }
+  #estadoCard.error h2 { color: #DC2626; }
+
+  @media(max-width:600px){
+    .top-strip-right { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP STRIP -->
+<div class="top-strip">
+  <a href="index.html">← <span>JAG</span> · Consultoría ERP/PDM</a>
+  <span class="top-strip-right">Monterrey, N.L. · México</span>
+</div>
+
+<!-- HERO HEADER -->
+<div class="form-header">
+  <div class="client-badge" id="clientBadge">Diagnóstico personalizado</div>
+  <h1>Cuestionario de Diagnóstico</h1>
+  <p>ERP · PDM · Digitalización de Procesos · Comunicación Interna</p>
+</div>
+
+<!-- PROGRESS -->
+<div class="progress-wrap">
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="progress-pct" id="progressPct">0%</div>
+</div>
+
+<!-- CONTENIDO -->
+<div class="wrapper">
+  <div id="formCard">
+  <form id="mainForm" autocomplete="on">
+
+    <!-- Datos del prospecto -->
+    <div class="datos-block">
+      <div class="block-header">
+        <span class="block-num">INFO</span>
+        <h3>Datos del Prospecto</h3>
+      </div>
+      <div class="block-body">
+        <div class="datos-grid">
+          <div class="field">
+            <label>Empresa / Organización *</label>
+            <input type="text" name="empresa" id="inputEmpresa" required placeholder="Nombre de la empresa">
+          </div>
+          <div class="field">
+            <label>Nombre del Contacto *</label>
+            <input type="text" name="contacto" required placeholder="Tu nombre completo">
+          </div>
+          <div class="field">
+            <label>Correo Electrónico</label>
+            <input type="email" name="correo" placeholder="correo@empresa.com">
+          </div>
+          <div class="field">
+            <label>Teléfono</label>
+            <input type="tel" name="telefono" placeholder="(81) 0000-0000">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección 1 -->
+    <div class="seccion">
+      <div class="block-header">
+        <span class="block-num">01</span>
+        <h3>La Empresa</h3>
+      </div>
+      <div class="sec-preguntas">
+        <div class="pregunta field">
+          <label>¿Cuántos empleados en total y cuántos usarían el sistema?</label>
+          <input type="text" name="q1_1" placeholder="Ej: 25 empleados, 10 usarían el sistema">
+        </div>
+        <div class="pregunta field">
+          <label>¿Qué departamentos estarían involucrados?<span class="hint">Ej: Compras, Almacén, Ingeniería, Ventas, Dirección</span></label>
+          <input type="text" name="q1_2" placeholder="Lista los departamentos">
+        </div>
+        <div class="pregunta field">
+          <label>¿Tienen Google Workspace o usan Gmail gratuito?</label>
+          <select name="q1_3">
+            <option value="">— Selecciona —</option>
+            <option>Google Workspace con dominio propio</option>
+            <option>Gmail gratuito (@gmail.com)</option>
+            <option>Otro servicio de correo</option>
+            <option>No lo sé aún</option>
+          </select>
+        </div>
+        <div class="pregunta field">
+          <label>¿Tienen servidor propio o operan en la nube?</label>
+          <select name="q1_4">
+            <option value="">— Selecciona —</option>
+            <option>Servidor propio (on-premise)</option>
+            <option>Todo en la nube</option>
+            <option>Combinación de ambos</option>
+            <option>No lo sé</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección 2 -->
+    <div class="seccion">
+      <div class="block-header">
+        <span class="block-num">02</span>
+        <h3>ERP — Operaciones</h3>
+      </div>
+      <div class="sec-preguntas">
+        <div class="pregunta field">
+          <label>¿Cómo levantan hoy una orden de compra?<span class="hint">Ej: Excel, WhatsApp, papel, correo...</span></label>
+          <textarea name="q2_1" placeholder="Describe el proceso actual"></textarea>
+        </div>
+        <div class="pregunta field">
+          <label>¿Quién aprueba las OC y cuántos niveles de aprobación hay?</label>
+          <input type="text" name="q2_2" placeholder="Ej: Jefe de compras → Gerente general">
+        </div>
+        <div class="pregunta field">
+          <label>¿Manejan múltiples almacenes o solo uno?</label>
+          <select name="q2_3">
+            <option value="">— Selecciona —</option>
+            <option>Un solo almacén</option>
+            <option>Múltiples almacenes o ubicaciones</option>
+          </select>
+        </div>
+        <div class="pregunta field">
+          <label>¿Necesitan trazabilidad por lote o número de serie?</label>
+          <select name="q2_4">
+            <option value="">— Selecciona —</option>
+            <option>Sí, por lote</option>
+            <option>Sí, por número de serie</option>
+            <option>Ambos</option>
+            <option>No es necesario</option>
+          </select>
+        </div>
+        <div class="pregunta field">
+          <label>¿Emiten facturas fiscales (CFDI) o solo documentos internos?</label>
+          <select name="q2_5">
+            <option value="">— Selecciona —</option>
+            <option>Sí, necesitamos CFDI timbrado</option>
+            <option>Solo documentos internos</option>
+            <option>Ambos</option>
+          </select>
+        </div>
+        <div class="pregunta field">
+          <label>¿Tienen proveedores recurrentes con precios fijos?</label>
+          <select name="q2_6">
+            <option value="">— Selecciona —</option>
+            <option>Sí, con precio fijo</option>
+            <option>Precios variables por cotización</option>
+            <option>Combinación</option>
+          </select>
+        </div>
+        <div class="pregunta field">
+          <label>¿Manejan órdenes de venta o principalmente compras internas?</label>
+          <select name="q2_7">
+            <option value="">— Selecciona —</option>
+            <option>Principalmente compras internas</option>
+            <option>Ventas a clientes externos también</option>
+            <option>Ambos por igual</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección 3 -->
+    <div class="seccion">
+      <div class="block-header">
+        <span class="block-num">03</span>
+        <h3>PDM — Ingeniería y BOMs</h3>
+      </div>
+      <div class="sec-preguntas">
+        <div class="pregunta field">
+          <label>¿Su equipo trabaja en 2D (AutoCAD/PDF) o 3D (SolidWorks, Inventor)?</label>
+          <select name="q3_1">
+            <option value="">— Selecciona —</option>
+            <option>2D (AutoCAD, planos PDF)</option>
+            <option>3D (SolidWorks)</option>
+            <option>3D (Inventor / Fusion 360)</option>
+            <option>Combinación 2D y 3D</option>
+            <option>No manejamos CAD</option>
+          </select>
+        </div>
+        <div class="pregunta field">
+          <label>¿La BOM la genera el CAD o la capturan manual / en Excel?</label>
+          <select name="q3_2">
+            <option value="">— Selecciona —</option>
+            <option>El CAD la genera automáticamente</option>
+            <option>Manual en Excel</option>
+            <option>No manejamos BOM actualmente</option>
+          </select>
+        </div>
+        <div class="pregunta field">
+          <label>¿Cuántos niveles tiene su BOM más compleja?</label>
+          <select name="q3_3">
+            <option value="">— Selecciona —</option>
+            <option>1 nivel</option>
+            <option>2-3 niveles</option>
+            <option>4-5 niveles</option>
+            <option>Más de 5 niveles</option>
+          </select>
+        </div>
+        <div class="pregunta field">
+          <label>¿Manejan variantes del mismo producto? ¿Cómo las diferencian?</label>
+          <textarea name="q3_4" placeholder="Ej: Mismo producto en 3 tamaños, diferenciado por sufijo en número de parte"></textarea>
+        </div>
+        <div class="pregunta field">
+          <label>¿En qué formato comparten / exportan sus archivos de diseño?<span class="hint">Ej: STEP, STL, PDF de plano, DWG...</span></label>
+          <input type="text" name="q3_5" placeholder="Escribe los formatos que usan">
+        </div>
+        <div class="pregunta field">
+          <label>¿Tienen esquema de Part Numbers definido?</label>
+          <select name="q3_6">
+            <option value="">— Selecciona —</option>
+            <option>Sí, tenemos esquema definido</option>
+            <option>Esquema informal / inconsistente</option>
+            <option>No, habría que definirlo</option>
+          </select>
+        </div>
+        <div class="pregunta field">
+          <label>¿Cómo se aprueba hoy un cambio de ingeniería (ECN)?</label>
+          <textarea name="q3_7" placeholder="Ej: El ingeniero avisa por correo, el gerente aprueba verbalmente. No hay proceso formal."></textarea>
+        </div>
+        <div class="pregunta field">
+          <label>¿Cuántos productos o ensambles activos manejan?</label>
+          <input type="text" name="q3_8" placeholder="Ej: 15 productos, ~200 partes únicas">
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección 4 -->
+    <div class="seccion">
+      <div class="block-header">
+        <span class="block-num">04</span>
+        <h3>Digitalización de Procesos</h3>
+      </div>
+      <div class="sec-preguntas">
+        <div class="pregunta field">
+          <label>¿Tienen procedimientos documentados hoy (Word, papel)?</label>
+          <select name="q4_1">
+            <option value="">— Selecciona —</option>
+            <option>Sí, mayoría en Word/PDF</option>
+            <option>Algunos documentados, la mayoría no</option>
+            <option>Todo verbal o en papel</option>
+          </select>
+        </div>
+        <div class="pregunta field">
+          <label>¿Cuántos procedimientos estiman digitalizar?</label>
+          <select name="q4_2">
+            <option value="">— Selecciona —</option>
+            <option>Menos de 5</option>
+            <option>5 a 15</option>
+            <option>15 a 30</option>
+            <option>Más de 30</option>
+          </select>
+        </div>
+        <div class="pregunta field">
+          <label>¿Qué procesos están causando más problemas por falta de estandarización?</label>
+          <textarea name="q4_3" placeholder="Describe brevemente los más problemáticos"></textarea>
+        </div>
+        <div class="pregunta field">
+          <label>¿Quién aprobaría los procedimientos internamente?</label>
+          <input type="text" name="q4_4" placeholder="Ej: Gerente de ingeniería, Director de operaciones">
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección 5 -->
+    <div class="seccion">
+      <div class="block-header">
+        <span class="block-num">05</span>
+        <h3>Comunicación Interna</h3>
+      </div>
+      <div class="sec-preguntas">
+        <div class="pregunta field">
+          <label>¿Cómo se comunica el equipo hoy?</label>
+          <select name="q5_1">
+            <option value="">— Selecciona —</option>
+            <option>WhatsApp principalmente</option>
+            <option>Correo electrónico</option>
+            <option>Combinación WhatsApp + correo</option>
+            <option>Teams / Slack</option>
+            <option>Sin canal formal</option>
+          </select>
+        </div>
+        <div class="pregunta field">
+          <label>¿Les interesa separar comunicación laboral de la personal?</label>
+          <select name="q5_2">
+            <option value="">— Selecciona —</option>
+            <option>Sí, queremos separarlo</option>
+            <option>No es prioridad</option>
+            <option>Lo analizaríamos</option>
+          </select>
+        </div>
+        <div class="pregunta field">
+          <label>¿Preferirían canales por departamento, proyecto o ambos?</label>
+          <select name="q5_3">
+            <option value="">— Selecciona —</option>
+            <option>Por departamento</option>
+            <option>Por proyecto</option>
+            <option>Ambos</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección 6 -->
+    <div class="seccion">
+      <div class="block-header">
+        <span class="block-num">06</span>
+        <h3>Seguridad y Accesos</h3>
+      </div>
+      <div class="sec-preguntas">
+        <div class="pregunta field">
+          <label>¿Hay información que solo ciertos departamentos deben ver?<span class="hint">Ej: Ingeniería no ve precios, Compras no ve diseños</span></label>
+          <textarea name="q6_1" placeholder="Describe las restricciones que necesitarían"></textarea>
+        </div>
+        <div class="pregunta field">
+          <label>¿Manejan diseños patentados o info muy confidencial?</label>
+          <select name="q6_2">
+            <option value="">— Selecciona —</option>
+            <option>Sí, muy confidencial</option>
+            <option>Moderadamente</option>
+            <option>No es una preocupación mayor</option>
+          </select>
+        </div>
+        <div class="pregunta field">
+          <label>¿Tienen NDA o acuerdos de confidencialidad con clientes?</label>
+          <select name="q6_3">
+            <option value="">— Selecciona —</option>
+            <option>Sí, con la mayoría</option>
+            <option>Con algunos</option>
+            <option>No actualmente</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección 7 -->
+    <div class="seccion">
+      <div class="block-header">
+        <span class="block-num">07</span>
+        <h3>Implementación y Expectativas</h3>
+      </div>
+      <div class="sec-preguntas">
+        <div class="pregunta field">
+          <label>¿Tienen fecha objetivo para el sistema?</label>
+          <input type="text" name="q7_1" placeholder="Ej: Antes de julio, en 3 meses, sin fecha definida...">
+        </div>
+        <div class="pregunta field">
+          <label>¿Tienen datos que migrar?<span class="hint">Ej: inventario en Excel, catálogo de partes, proveedores</span></label>
+          <textarea name="q7_2" placeholder="Qué datos tienen y en qué formato están"></textarea>
+        </div>
+        <div class="pregunta field">
+          <label>¿Quién sería el admin interno del sistema una vez entregado?</label>
+          <input type="text" name="q7_3" placeholder="Nombre o cargo">
+        </div>
+        <div class="pregunta field">
+          <label>¿Han usado algún ERP o PDM antes? ¿Qué les gustó o no?</label>
+          <textarea name="q7_4" placeholder="Ej: Usamos SAP pero era complicado. / Nunca hemos tenido nada."></textarea>
+        </div>
+        <div class="pregunta field">
+          <label>¿Tienen presupuesto estimado para este proyecto?</label>
+          <select name="q7_5">
+            <option value="">— Prefiero no especificar —</option>
+            <option>Menos de $50,000 MXN</option>
+            <option>$50,000 – $100,000 MXN</option>
+            <option>$100,000 – $200,000 MXN</option>
+            <option>Más de $200,000 MXN</option>
+            <option>Abierto a propuesta</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notas -->
+    <div class="notas-wrap">
+      <label>📝 Notas o comentarios adicionales (opcional)</label>
+      <textarea name="notas" placeholder="Cualquier información adicional que quieras compartir..."></textarea>
+    </div>
+
+    <button type="submit" class="btn-submit" id="btnSubmit">Enviar diagnóstico →</button>
+    <p class="privacy">Tus respuestas se envían de forma segura directamente al consultor. No se comparten con terceros.</p>
+
+  </form>
+  </div>
+
+  <!-- Estado card -->
+  <div id="estadoCard">
+    <div class="estado-icon" id="estadoIcon"></div>
+    <h2 id="estadoTitulo"></h2>
+    <p id="estadoMsg"></p>
+  </div>
+</div>
+
+<script>
+// ── Leer ?cliente= de la URL ────────────────────────────────────
+(function() {
+  const params  = new URLSearchParams(window.location.search);
+  const cliente = params.get('cliente');
+  if (cliente) {
+    const decoded = decodeURIComponent(cliente);
+    document.getElementById('clientBadge').textContent = '📋 ' + decoded;
+    document.title = 'Diagnóstico · ' + decoded;
+    const inputEmpresa = document.getElementById('inputEmpresa');
+    inputEmpresa.value = decoded;
+    inputEmpresa.readOnly = true;
+    inputEmpresa.style.background = '#EFF6FF';
+    inputEmpresa.style.color = '#2563EB';
+    inputEmpresa.style.fontWeight = '600';
+  }
+})();
+
+// ── Progress bar ────────────────────────────────────────────────
+const allInputs = document.querySelectorAll('input:not([type=hidden]), textarea, select');
+function updateProgress() {
+  let filled = 0;
+  allInputs.forEach(el => {
+    if (el.value && el.value.trim() !== '' && el.value !== '') filled++;
+  });
+  const pct = Math.round((filled / allInputs.length) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct + '%';
+}
+allInputs.forEach(el => {
+  el.addEventListener('input', updateProgress);
+  el.addEventListener('change', updateProgress);
+});
+updateProgress();
+
+// ── Submit → fetch a GAS ────────────────────────────────────────
+document.getElementById('mainForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = document.getElementById('btnSubmit');
+  btn.disabled = true;
+  btn.textContent = 'Enviando...';
+
+  // Recoger datos
+  const datos = {};
+  new FormData(this).forEach((v, k) => { datos[k] = v; });
+
+  // Ocultar form, mostrar spinner
+  document.getElementById('formCard').style.display = 'none';
+  const card = document.getElementById('estadoCard');
+  card.classList.add('visible');
+  document.getElementById('estadoIcon').textContent = '⏳';
+  document.getElementById('estadoTitulo').textContent = 'Enviando respuestas...';
+  document.getElementById('estadoMsg').textContent = 'Por favor espera un momento.';
+
+  // ⚠️ REEMPLAZA ESTA URL con la de tu Web App de GAS
+  const GAS_URL = 'https://script.google.com/macros/s/AKfycbw-r_aS7Yn1A78Hc34gkymJ_S-sfEhkVJ1obAzQg3hogaLfJMIS71EgJpHONj_bUMmWtw/exec';
+
+  try {
+    const res = await fetch(GAS_URL, {
+      method: 'POST',
+      mode: 'no-cors',  // GAS no devuelve CORS headers — siempre "opaque"
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(datos)
+    });
+    // Con no-cors siempre llega aquí si no hubo error de red
+    document.getElementById('estadoIcon').textContent = '✅';
+    document.getElementById('estadoTitulo').textContent = '¡Diagnóstico enviado!';
+    document.getElementById('estadoMsg').innerHTML =
+      'Gracias por tu tiempo.<br>Juan Alberto revisará tus respuestas y se pondrá en contacto contigo a la brevedad.';
+  } catch (err) {
+    card.classList.add('error');
+    document.getElementById('estadoIcon').textContent = '❌';
+    document.getElementById('estadoTitulo').textContent = 'Error al enviar';
+    document.getElementById('estadoMsg').textContent =
+      'Por favor intenta de nuevo o contacta directamente a jgrijalva@gmail.com';
+  }
+});
+</script>
+</body>
+</html>
